@@ -1,0 +1,31 @@
+---
+title: "Proposal"
+author: "Tyler Smith, Ritika Agrawal, Chase Weida, Bernie Fay"
+date: "April 4, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# DS202 Project Group 6  
+### Team: Chase Weida, Bernie Fay, Ritika Agrawal, Tyler Smith  
+### Project Coordinator: Bernie Fay  
+  
+We will be utilizing two different data sets for this project. The first is a collection of user ratings charts featuring the top-100 artist names and albums for nine different genres of music in 2019. A link to one of these webpages is below:
+https://rateyourmusic.com/find/userchart?usernames=Zappaholic%2C+Zed%2C+Groumfy%2C+timregler%2C+smzig99%2C+bruklover%2C+Footprints%2C+kjamag%2C+jazz_guru%2C+afroclonk%2C+jazyjef%2C+yofriend%2C+dannyhutton%2C+supportors%2C+DemBonez%2C+nervenet%2C+bluby%2C+HumanaCat%2C+p_lemberg%2C+idlemoments%2C+Senyer%2C+joNas%2C+bevrich%2C+superpang%2C+voyteck%2C+dre2k19%2C+BlueTrain%2C&usernames=Zappaholic%2c+Zed%2c+Groumfy%2c+timregler%2c+smzig99%2c+bruklover%2c+Footprints%2c+kjamag%2c+jazz%5fguru%2c+afroclonk%2c+jazyjef%2c+yofriend%2c+dannyhutton%2c+supportors%2c+DemBonez%2c+nervenet%2c+bluby%2c+HumanaCat%2c+p%5flemberg%2c+idlemoments%2c+Senyer%2c+joNas%2c+bevrich%2c+superpang%2c+voyteck%2c+dre2k19%2c+BlueTrain%2c  
+The other links are located in the pullingData-Weida.R file, which includes R script to download each genre's data.  
+  
+The other data we will be utilizing is in the spotifyr package. Together with the top-100 lists, we can easily subset the spotify data to only include the top-100 albums from our nine genres. The spotify data set includes different metrics of each song including key, valence, tempo, time signature and many others that can be used for exploratory analysis. 
+  
+  
+### Plan for exploratory analysis  
+We are planning to compare the top songs within each genre, as well as compare different metrics between genres. For example, we expect time signature, tempo and key to be very different between jazz and metal music. This exploratory analysis will allow us to identify these differences, as well as find similarities between genres and outliers within genres. With nine different genres, we have an ample amount of data to look at. Some formal questions we can answer are below:  
+Which music genres are the most similar/different?  
+Within each genre, which key signatures are the most prevelant? Least prevalent?  
+Which songs differ the most compared to other songs in the genre?  
+What characteristics define/separate each genre of music?  
+  
+As we begin to explore the data, we will find and ask other interesting questions that we have regarding the data set. 
+
