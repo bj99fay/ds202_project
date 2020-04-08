@@ -1,3 +1,7 @@
+
+install.packages('spotifyr')
+library(spotifyr)
+
 library(tidyverse)
 
 pageAsDf <- function(URL)
@@ -37,9 +41,13 @@ soulPage
 grungePage <- pageAsDf('http://rateyourmusic.com/find/userchart?usernames=goregirl%2C+multiverse%2C+ean%2C+Dancon7%2C+jederin%2C+_jmc_%2C+Falkman%2C+JackL%2C+nina3115%2C+chili_pepper%2C+monkeychunx%2C+Bloodaxe%2C+dustyhands%2C+Ceeker%2C+Spoonman%2C+oceanic%2C+randakk%2C+brainofj72%2C+CodeNemesis%2C+greyninjax%2C+quixote%2C+lennydubber%2C+pearljam1990%2C+denisobreja%2C+svarog86%2C+whiplash1980%2C+Worstcritic%2C+Lonniemyidol%2C+norain%2C+PsychicWar%2C+fasterdisco%2C+pearljammer9%2C+Pearl4ever%2C+taj%2C+Kensnroses%2C+mr1879%2C+skyrat%2C+RangerX%2C+stavanger%2C+Superunknown0101%2C+fluentchaos%2C')
 grungePage
 
+fullSet <- rbind(grungePage,soulPage,progPage,metalPage,popPage,rapPage, electronicPage, indiePage, jazzPage)
+fullSet <- fullSet[,c('Artist','Album')]
 
 
+write.csv(fullSet, file = '/Users/chase/Desktop/RProjects/ds202_project/genreData')
 
 
-
-
+fullSet <- read.csv('/Users/chase/Desktop/RProjects/ds202_project/genreData', )
+fullSet <- fullSet[,c('Artist','Album')]
+str(fullSet)
