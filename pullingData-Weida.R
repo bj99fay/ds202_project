@@ -1,4 +1,4 @@
-
+setwd('/Users/chase/Desktop/RProjects/ds202_project/')
 install.packages('spotifyr')
 library(spotifyr)
 
@@ -45,9 +45,18 @@ fullSet <- rbind(grungePage,soulPage,progPage,metalPage,popPage,rapPage, electro
 fullSet <- fullSet[,c('Artist','Album')]
 
 
-write.csv(fullSet, file = '/Users/chase/Desktop/RProjects/ds202_project/genreData')
+#write.csv(fullSet, file = '/Users/chase/Desktop/RProjects/ds202_project/genreData')
 
 
-fullSet <- read.csv('/Users/chase/Desktop/RProjects/ds202_project/genreData', )
-fullSet <- fullSet[,c('Artist','Album')]
-str(fullSet)
+#fullSet <- read.csv('/Users/chase/Desktop/RProjects/ds202_project/genre_data', )
+#fullSet <- fullSet[,c('Artist','Album')]
+#str(fullSet)
+
+
+spotifyInfo <- read.csv('./Top_100_by_fans')
+spotifyInfo
+
+
+
+
+
