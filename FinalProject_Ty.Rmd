@@ -1,0 +1,118 @@
+---
+title: "FinalProject_individual"
+author: "Tyler Smith"
+date: "April 15, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+setwd("C:/Users/Tyler/Desktop")
+data <- read.csv("top_100_by_fans.csv")
+library(tidyr)
+library(tidyverse)
+library(ggplot2)
+```
+
+#Variable Explanations
+  Liveness: Presence of an audience (0.8 > likely that the track is live)  
+  Loudness: Averaged across a track, -60 to 0 decibals. Somewhat becomes the ability to be amplifiied (Primary psychological correlate of amplitude) 
+  Tempo: Pace of the track in Beats per Minute (BPM)  
+  Instrumentalness: Whether a track contains no vocals. Values close to 1 = no vocal content. 0.5 and up is declared an instrumental track.  
+  Energy: Intensity and Activity (loud, noisy, fast), dynamic range, loudness, timbre, onset rate, general entropy.   
+  Danceability:  tempo, rhythm stability, beat strength, overall regularity
+  Acousticness:  Not having electronic amplification.
+  Valence:  Musical positiveness conveyed (happy cheerful euphoric vs. sad depressed angry)
+    
+    
+### Question 1: What drives popularity in the Metal genre, which is the loudest, fastest and most energetic genre?
+To look at by mean:
+  Loudness
+  Tempo
+  Energy
+  Danceability
+  Acousticness
+  Valence
+To look at by count:
+  Live (> 0.8)
+  Instrumentalness (> 0.5)
+
+Metal is loudest, fastest, most energetic, so what drives popularity in that category:
+  Correlation is the highest with Liveness, Instrumentalness, Valence and Tempo
+  Liveness: None above the 0.5 threshold, but 7-of-9 above 0.4 in Top-25
+  Instrumentalness: All albums classified as instrumental are outside top-50 besides one. (12-of-13), none in the top-40
+  Valence: No real correlation present; this category is pretty evenly spread out, perhaps with the few higher-valence albums being more likely to be in the top-50.
+  Loud: May need percentage of top-100 above -10 dB for context, but 19-of-25 in top-25 are above this mark.
+  Tempo: Perhaps slower metal albums are less popular, but still a good cluster in the front end. Most albums centered around 115 or 140 BPM, but nearly equally as popular.
+  
+### Conclusion:
+None of the most-correlated variables tell too much of a story. Since metal is the loudest, people that tend to listen to the genre are likely into the loud sounds produced by these artists. Most albums in the top-25 (76%) were -10 decibals or louder, while only 70% of the top-100 were above this mark. One the high-correlation variables, instrumentalism, revealed the albums rating in the higher-end of that category ranked no. 40 or below, suggesting that albums that are high in that category are not as popular.   
+  
+In the metal genre, on 10% of the top-100 albums scored a 0.6 or higher in valence, a measure of positivity in the album. In general, 8% of these were within the top-55, suggesting that higher valence metal albums tend to do better when they are produced, even though this is infrequent. 
+  
+```{r}
+#Initial Exploration
+data %>%
+  group_by(Fan_Genre) %>%
+  summarise(tempo = mean(average_tempo),loud = mean(average_loudness), energy = mean(average_energy))
+
+metal <- data %>%
+  filter(Fan_Genre == "Metal")
+library(GGally)
+# GGpairs plot
+metal %>%
+  ggpairs(c(5,8:15))
+
+metal %>%
+  ggplot(aes(x=Popularity,y=average_liveness)) + geom_point()
+
+metal %>%
+  ggplot(aes(x=Popularity,y=average_instrumentalness)) + geom_point()
+
+metal %>%
+  ggplot(aes(x=Popularity,y=average_valence)) + geom_point()
+
+metal %>%
+  ggplot(aes(x=Popularity,y=average_loudness)) + geom_point()
+
+metal %>%
+  filter(average_loudness > -10) %>%
+  summarize(n=n())
+
+metal %>%
+  ggplot(aes(x=Popularity,y=average_tempo)) + geom_point()
+```
+
+# Question 2: Among the top-10 albums in each genre, how do the genres compare?
+  In the full model, metal was the loudest, fastest and most energetic. Oddly enough, among the top-10 in each genre, it loses the loudest and most-energest titles. Grunge is the most energetic, while jazz ended up as the loudest genre. 
+  
+  In the top-10 subset, Jazz is the slowest and softest. Meanwhile, pop is the third-fastest, but also the loudest, creating a lot of energy. From the faceted scatterplot, it is interesting to see the variances present within each genre's top albums. The energy really doesn't appear to be a huge factor in jazz, electronic or soul. Each of these have wide spreads and hit all over the board in terms of energy. Meanwhile, genres Grunge and Pop formed almost a straight line around the 0.75 mark as far as energy, suggesting that energy is extremely important in getting a top song.
+  
+  The other variable I wanted to look at was valence. The two highest valence genres were pop and soul, while Grunge was the lowest. To effectively look at this, I also wanted variance to see how spread out some of these genres were in valence. Pop had the lowest variance of all at just 0.0015. Jazz, soul and rap also had small variances, but none as small as pop.
+  
+  
+  
+```{r}
+prob2 <- data %>%
+  filter(Popularity < 11)
+prob2 %>%
+  group_by(Fan_Genre) %>%
+  summarize(tempo = mean(average_tempo),loud = mean(average_loudness), energy = mean(average_energy))
+
+prob2 %>%
+  ggplot(aes(x=Popularity,y=average_energy)) + geom_point() + facet_wrap(~Fan_Genre)
+
+prob2 %>%
+  group_by(Fan_Genre) %>%
+  summarize(mean = mean(average_valence), var = var(average_valence))
+
+prob2 %>%
+  filter(Fan_Genre == "Pop") %>%
+  ggplot(aes(x=Popularity,y=average_valence)) + geom_point()
+```
+
