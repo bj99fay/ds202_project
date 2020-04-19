@@ -50,12 +50,12 @@ fullSet <- fullSet[,c('Artist','Album')]
 
 #fullSet <- read.csv('/Users/chase/Desktop/RProjects/ds202_project/genre_data', )
 #fullSet <- fullSet[,c('Artist','Album')]
-#str(fullSet)
+str(fullSet)
 
 
-spotifyInfo <- read.csv('./Top_100_by_fans')
+spotifyInfo <- read.csv('./Top_100_by_fans.csv', header = TRUE)
+str(spotifyInfo)
 spotifyInfo
-
 
 
 

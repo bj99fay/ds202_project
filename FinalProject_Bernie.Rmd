@@ -1,0 +1,154 @@
+---
+title: "FinalProject_Individual"
+author: "Bernard Fay"
+date: "4/19/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include = FALSE}
+library(ggplot2)
+library(tidyverse)
+data <- read.csv("top_100_by_fans.csv")
+```
+
+#Variable Explanations
+  Liveness: Presence of an audience (0.8 > likely that the track is live)  
+  Loudness: Averaged across a track, -60 to 0 decibals. Somewhat becomes the ability to be amplifiied (Primary psychological correlate of amplitude) 
+  Tempo: Pace of the track in Beats per Minute (BPM)  
+  Instrumentalness: Whether a track contains no vocals. Values close to 1 = no vocal content. 0.5 and up is declared an instrumental track.  
+  Energy: Intensity and Activity (loud, noisy, fast), dynamic range, loudness, timbre, onset rate, general entropy.   
+  Danceability:  tempo, rhythm stability, beat strength, overall regularity
+  Acousticness:  Not having electronic amplification.
+  Valence:  Musical positiveness conveyed (happy cheerful euphoric vs. sad depressed angry)
+  
+###Question 1: Do the top songs tend to have average tempo or go to the extremes for their genre?
+Variables to look at:
+  -average tempo
+  -genre
+  -album
+  
+###Conclusion:
+For most of the genres, the top album's tempo fell into the confidence band. However, there were two generes where the top album somewhat deviated from the trend.
+
+Rap has a decline in tempos in the top quartile of albums, yet the top album "Illmatic" didn't follow this trend and matched the tempos on less popular albums. This is interesting and suggests that there might be something else besides tempo that put this album on top.
+
+Metal's top album "Reign of Blood" has a rather high tempo for its genre. Looking more closely at the graph, there appears to be a split in metal as far as tempo is concerned. Very few songs fell in the confidence band, suggesting that there are two "sub-groups" within metal when it comes to tempo. "Reign of Blood" is in the faster group, but also has one of the fastest tempos too, suggesting that tempo might be a larger factor in popularity fro metal than for other genres.
+
+
+```{r}
+str(data)
+byGenre <- data %>% group_by(Fan_Genre)
+topAlbums <- byGenre %>% filter(Popularity == 1)
+byGenre %>% ggplot(aes(x=Popularity, y=average_tempo)) + geom_point(alpha=1/2) + 
+  geom_point(data=topAlbums, color="red") + 
+  geom_label(data=topAlbums, label=topAlbums$Album, vjust=-0.75, hjust=-0.1) +
+  geom_smooth(formula = y ~ x, method = "loess") + 
+  facet_wrap(~Fan_Genre)
+```
+
+###Question 2: What is the relationship between danceability and valence overall and for each genre? Is there a third variable that can help explain this relationship?
+Primary variables of interest:
+  -average_danceability
+  -average_valence
+  -genre
+  
+###Conclusion:
+There is an obvious positive relationship between how positively sounding an album is and its danceability both overall and within each genre. Some genres don't show as much of a relationship because most of the albums are clustered together, like jazz and rap.
+
+There appeared to be three variables that could influence or exlpain this relationship: energy, instrumentalness, and acousticness.
+
+There is a direct positive correlation between energy, danceability, and valence. Higher energy tends to be associated with more danceable and positive songs, and vice versa. Energy makes a song more enjoyable, which make it easier to dance to, so this relationship makes sense intuitively.
+
+Instrumentalness has the exact opposite trend. Albums that have lower instrumentalness tend to have higher danceability and valence. This relationship is interesting as it represents a trend in today's culture: an increasing number of songs have no instrumental bridges as vocals tend to be used thorughout the entire song. When compared to this cultural shift, this relationship is understandable.
+
+Acousticness is the most intriguing of the three variables. Songs that use electronic amplification fall on the extremes, either having low danceability and valence or high danceability and valence, while songs without electronic amplification tend to fall in the middle, hacing middling danceability and valence. This relationship can be explained by four of the genres. Low acoustic rap and pop songs tend to be more positive and danceable, while low acoustic metal tends to have low daceability and valence. This is likely attributable to the nature of each genre, as metal is not something that is often danced to or uplifting, while rap and pop tend to have the opposite characteristics. Since electronic amplification is used widely in all three, this is likely what is causing this relationship to appear. Additionally, jazz has middling values all, filling in the gap between metal and rap/pop. Acousticness tends to lack an obvious relationship with danceability and valence in the other genres. So how much of a relationship this is is debateable since a few genres are creating the appearance of a relationship for all genres.
+
+```{r}
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence)) + 
+  geom_point() + 
+  geom_point(data = topAlbums, color = "red") +
+  geom_smooth(method = "lm") + 
+  labs(title = "Avg Danceability vs Avg Valence")
+
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=Fan_Genre)) + 
+  geom_point() + 
+  geom_point(data = topAlbums, color = "black") +
+  geom_smooth(method = "lm") + 
+  labs(title = "Avg Danceability vs Avg Valence by Genre")
+
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=Fan_Genre)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  geom_point(data = topAlbums, color = "black") +
+  labs(title = "Avg Danceability vs Avg Valence") + 
+  facet_wrap(~Fan_Genre)
+
+byGenre <- byGenre %>% 
+  mutate(popularity.cuts = cut(Popularity, c(-Inf, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100))) %>%
+  mutate(liveliness.cuts = cut(average_liveness, c(-Inf, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1))) %>%
+  mutate(loudness.cuts = cut(average_loudness, c(Inf, -3, -6, -9, -12, -15, -18, -21, -24, -27, -Inf))) %>%
+  mutate(tempo.cuts = cut(average_tempo, c(0, 85, 95, 105, 115, 125, 135, 145, 155, 165, 175, Inf))) %>%
+  mutate(energy.cuts = cut(average_energy, c(-Inf, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1))) %>%
+  mutate(instrumental.cuts = cut(average_instrumentalness, c(-Inf, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1))) %>%
+  mutate(acoustic.cuts = cut(average_acousticness, c(-Inf, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)))
+
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=popularity.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence") 
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=popularity.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence") + 
+  facet_wrap(~Fan_Genre)
+
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=liveliness.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence")
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=liveliness.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence") + 
+  facet_wrap(~Fan_Genre)
+
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=loudness.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence")
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=loudness.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence") + 
+  facet_wrap(~Fan_Genre)
+
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=tempo.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence")
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=tempo.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence") + 
+  facet_wrap(~Fan_Genre)
+
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=energy.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence")
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=energy.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence") + 
+  facet_wrap(~Fan_Genre)
+
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=instrumental.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence")
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=instrumental.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence") + 
+  facet_wrap(~Fan_Genre)
+
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=acoustic.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence")
+byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=acoustic.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence") + 
+  facet_wrap(~Fan_Genre)
+```
