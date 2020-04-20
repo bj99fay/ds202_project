@@ -1,0 +1,166 @@
+---
+title: "individua expration"
+author: "Ritz"
+date: "4/19/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+```{R}
+library(spotifyr)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(ggcorrplot)
+```
+
+```{R}
+
+musicdata <- read.csv("C:/Users/ritik/Desktop/ds202_project/Top_100_by_fans.csv")
+head(musicdata)
+
+```
+
+
+```{R}
+# Checking proportion of each genre in the dataset
+songs_data <- 
+  
+  musicdata %>% 
+  
+  group_by(Fan_Genre) %>% 
+  
+  count() %>% 
+  
+  ungroup() %>% 
+  
+  mutate(`Proportion(%)` = round((n/sum(n))*100, 2)) %>% 
+  
+  arrange(-n) %>% 
+  
+  rename(Genre = Fan_Genre,
+         
+         `Total songs` = n) 
+
+head(songs_data)
+
+```
+
+
+```{R}
+
+##Distribution of important variables
+par(mfrow=c(2,3))
+hist(musicdata$average_liveness,col = 'blue',breaks=40,main='Distribution of average liveness',xlab = 'Average Liveness')
+hist(musicdata$average_loudness,col = 'blue',breaks=40,main='Distribution of average loudness',xlab = 'Average Loudness')
+hist(musicdata$average_energy,col = 'blue',breaks=40,main='Distribution of average energy',xlab = 'Average Energy')
+hist(musicdata$average_tempo,col = 'blue',breaks=40,main='Distribution of average tempo',xlab = 'Average Tempo')
+hist(musicdata$average_danceability,col = 'blue',breaks=80,main='Distribution of average danceability',xlab = 'Average Danceability')
+hist(musicdata$average_valence,col = 'blue',breaks=40,main='Distribution of average valence',xlab = 'Average Valence')
+```
+
+Analysis: Average liveness is skewed to the right. Average loudness is skewed to the left. Averag energy alsp seems to slightly skewed to the left. The others seem to be normally distributed if the outliers are removed. 
+
+
+```{R}
+##Average Liveness
+
+musicdata %>% 
+  
+  ggplot() +
+  
+  geom_boxplot(aes(Fan_Genre, average_liveness), fill = "steelblue", alpha = 0.7) +
+  
+  labs(y = "Average Liveness", x = "Music Genre", 
+       
+       title = "Average Liveness per music genre")+ ylim(0, 1)
+```
+
+Analysis: Average loudness of Rap genre is the highest. Soul genre has lowest average loudness. 
+
+```{R}
+##Average Tempo
+
+musicdata %>% 
+  
+  ggplot() +
+  
+  geom_boxplot(aes(Fan_Genre, average_tempo), fill = "yellow", alpha = 0.7) +
+  
+  labs(y = "Average Tempo", x = "Music Genre", 
+       
+       title = "Average Tempoe per music genre")+ ylim(65, 175)
+
+#Analysis: Average tempo of Metal Genre is the highest with no outliers. Rap & Jazz genres have lower average tempos. The pthergenres are between 100 and 130. The Prog genre has many outliers on either side. 
+```
+
+```{R}
+##Average Danceability
+
+musicdata %>% 
+  
+  ggplot() +
+  
+  geom_boxplot(aes(Fan_Genre, average_danceability), fill = "purple", alpha = 0.7) +
+  
+  labs(y = "Average Danceability", x = "Music Genre", 
+       
+       title = "Average Danceability per music genre")+ ylim(0, 1)
+
+#Analysis: Rap & Pop genres have more danceability compared to other genres. While Grunge has lower danceability, it also have many outliers on the upper side. Metal & Prog have almost similar danceability but Prog genre has higher median value. 
+```
+```{R}
+##Average Valence
+
+musicdata %>% 
+  
+  ggplot() +
+  
+  geom_boxplot(aes(Fan_Genre, average_valence), fill = "orange", alpha = 0.7) +
+  
+  labs(y = "Average Valence", x = "Music Genre", 
+       
+       title = "Average Valence per music genre")+ ylim(0, 1)
+
+#Analysis: The average valence of Soul genre is  the highest with few outliers on the lower side. Average valence of Pop & Rap genres are almost the same with Pop genre having more variability. The other genres seem to have more or less similar average valence. 
+```
+
+```{R}
+##Correlation between important variables
+cor.music <- cor(musicdata[,c('average_liveness','average_loudness','average_tempo','average_instrumentalness','average_energy','average_danceability','average_acousticness','average_valence')])
+ggcorrplot(cor.music,hc.order = TRUE,lab=TRUE) + ggtitle("Correlation between important predictors")
+
+#Analysis: As can be seen from the correlation matrix, the correlation between average loudness and average energy is very high followed by the correlation between average valence and average danceability. Average energy & average acouticness have a high negative correlation followed by average loudness and average acousticness as would be expected. 
+```
+```{R}
+##Top 10 songs by average danceability
+
+music_dance <- musicdata[order(-musicdata$average_danceability),] %>% head(n=15)
+ggplot(music_dance, aes(x=reorder(Artist,average_danceability), y=average_danceability)) +geom_bar(stat="identity", width=.5,fill="tomato3") + labs(title="Top Artists by average danceability",y="Average Danceability)",x="Artist")+coord_flip()
+
+#Analysis: As can be seen from the chart, Madonna's songs have the highest average danceability followed by 'A Tribe Called Quest'. 
+```
+```{R}
+##Top 10 songs by average liveness
+
+music_liveness <- musicdata[order(-musicdata$average_liveness),] %>% head(n=15)
+ggplot(music_liveness, aes(x=reorder(Artist,average_liveness), y=average_liveness)) +geom_bar(stat="identity", width=.5,fill="tomato3") + labs(title="Top Artists by average danceability",y="Average Liveness)",x="Artist")+coord_flip()
+
+#Analysis: As can be seen from the chart, Iron Maiden's songs have the highest average liveness followed by the artist, Camel.
+```
+```{R}
+##Top 10 songs by average tempo
+
+music_tempo <- musicdata[order(-musicdata$average_tempo),] %>% head(n=15)
+ggplot(music_tempo, aes(x=reorder(Artist,average_tempo), y=average_tempo)) +geom_bar(stat="identity", width=.5,fill="tomato3") + labs(title="Top Artists by average tempo",y="Average Tempo)",x="Artist")+coord_flip()
+
+#Analysis: As can be seen from the chart, Camel's songs have the highest average tempo followed by the Santana and Deep Purple.
+```
+```{R}
+##Top 10 songs by average valence
+
+music_valence <- musicdata[order(-musicdata$average_valence),] %>% head(n=15)
+ggplot(music_valence, aes(x=reorder(Artist,average_valence), y=average_valence)) +geom_bar(stat="identity", width=.5,fill="tomato3") + labs(title="Top Artists by average tempo",y="Average Valence)",x="Artist")+coord_flip()
+
+#Analysis: As can be seen from the chart, Madonna's songs have the highest average valence followed by the Prince and Talking Heads.
+```
