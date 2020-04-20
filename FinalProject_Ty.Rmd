@@ -12,7 +12,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r}
-setwd("C:/Users/Tyler/Desktop")
 data <- read.csv("top_100_by_fans.csv")
 library(tidyr)
 library(tidyverse)
