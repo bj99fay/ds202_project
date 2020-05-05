@@ -7,12 +7,13 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(size = "fill")
 ```
 
 ```{r, include = FALSE}
 library(ggplot2)
 library(tidyverse)
-data <- read.csv("top_100_by_fans.csv")
+data <- read.csv("Album_Label_Year_temp.csv")
 ```
 
 #Variable Explanations
@@ -94,7 +95,7 @@ byGenre <- byGenre %>%
   mutate(tempo.cuts = cut(average_tempo, c(0, 85, 95, 105, 115, 125, 135, 145, 155, 165, 175, Inf))) %>%
   mutate(energy.cuts = cut(average_energy, c(-Inf, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1))) %>%
   mutate(instrumental.cuts = cut(average_instrumentalness, c(-Inf, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1))) %>%
-  mutate(acoustic.cuts = cut(average_acousticness, c(-Inf, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)))
+    mutate(acoustic.cuts = cut(average_acousticness, c(-Inf, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1)))
 
 byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=popularity.cuts)) + 
   geom_point() + 
@@ -151,4 +152,24 @@ byGenre %>% ggplot(aes(x=average_danceability, y=average_valence, color=acoustic
   geom_point() + 
   labs(title = "Avg Danceability vs Avg Valence") + 
   facet_wrap(~Fan_Genre)
+```
+
+```{r}
+data <- read.csv("Album_Label_Year.csv")
+byAlbum <- data %>% group_by(Album_label) %>% filter(!(is.na(average_valence) | is.na(average_danceability))) %>%
+  mutate(acoustic.cuts = cut(average_acousticness, c(-Inf, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1))) %>%
+  mutate(instrumental.cuts = cut(average_instrumentalness, c(-Inf, 0.5, 1)))
+
+labels <- data %>% group_by(Album_label) %>% count(Album_label) %>% filter(n >= 7) %>% select(Album_label)
+
+byAlbum <- byAlbum %>% filter(Album_label %in% labels$Album_label)
+
+byAlbum %>% ggplot(aes(x=average_danceability, y=average_valence, color=acoustic.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence")
+
+byAlbum %>% ggplot(aes(x=average_danceability, y=average_valence, color = acoustic.cuts)) + 
+  geom_point() + 
+  labs(title = "Avg Danceability vs Avg Valence") + 
+  facet_wrap(~Album_label)
 ```
